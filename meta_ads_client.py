@@ -204,11 +204,12 @@ class MetaAdsClient:
           OUTCOME_ENGAGEMENT - post engagement
         """
         payload = {
-            "name": name,
-            "objective": objective,
-            "status": status,
-            "special_ad_categories": "[]",  # required field; set per Meta's housing/credit/employment/political rules if applicable
-        }
+    "name": name,
+    "objective": objective,
+    "status": status,
+    "special_ad_categories": "[]",
+    "is_adset_budget_sharing_enabled": "false",
+}
         return await self._post(f"{self.ad_account_id}/campaigns", payload)
 
     # -----------------------------------------------------------------

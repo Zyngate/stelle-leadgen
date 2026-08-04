@@ -204,12 +204,12 @@ class MetaAdsClient:
           OUTCOME_ENGAGEMENT - post engagement
         """
         payload = {
-    "name": name,
-    "objective": objective,
-    "status": status,
-    "special_ad_categories": "[]",
-    "is_adset_budget_sharing_enabled": "false",
-}
+            "name": name,
+            "objective": objective,
+            "status": status,
+            "special_ad_categories": "[]",  # required field; set per Meta's housing/credit/employment/political rules if applicable
+            "is_adset_budget_sharing_enabled": "false",  # required by current API; "false" because budget is set on the ad set, not the campaign (no CBO)
+        }
         return await self._post(f"{self.ad_account_id}/campaigns", payload)
 
     # -----------------------------------------------------------------
@@ -233,6 +233,7 @@ class MetaAdsClient:
             "daily_budget": str(int(round(daily_budget * 100))),
             "billing_event": billing_event,
             "optimization_goal": optimization_goal,
+            "bid_strategy": "LOWEST_COST_WITHOUT_CAP",  # automatic bidding, no manual bid amount required
             "targeting": _to_json(targeting),
             "status": status,
             "is_adset_budget_sharing_enabled": "true",

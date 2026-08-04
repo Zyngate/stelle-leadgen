@@ -233,10 +233,9 @@ class MetaAdsClient:
             "optimization_goal": optimization_goal,
             "targeting": _to_json(targeting),
             "status": status,
-            "is_adset_budget_sharing_enabled": "false",
+            "is_adset_budget_sharing_enabled": "true",
         }
-        with open("debug_payload.txt", "w") as f:
-            f.write(f"ADSET PAYLOAD:\n{payload}\n")
+        print(f"[DEBUG] ADSET PAYLOAD: {payload}", flush=True)
         return await self._post(f"{self.ad_account_id}/adsets", payload)
 
     # -----------------------------------------------------------------

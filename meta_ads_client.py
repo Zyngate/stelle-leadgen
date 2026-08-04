@@ -177,7 +177,8 @@ class MetaAdsClient:
         async with httpx.AsyncClient() as client:
             resp = await client.post(f"{BASE_URL}/{path}", data=payload, timeout=20.0)
         if resp.status_code != 200:
-            raise MetaAdsError(f"Meta API error {resp.status_code}: {resp.text}")
+            sent = {k: v for k, v in payload.items() if k != "access_token"}
+            raise MetaAdsError(f"Meta API error {resp.status_code}: {resp.text} | SENT: {sent}")
         return resp.json()
 
     async def _get(self, path: str, params: dict | None = None) -> dict:

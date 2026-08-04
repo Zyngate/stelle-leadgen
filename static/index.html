@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Stelle - Get in touch</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 420px; margin: 60px auto; padding: 0 20px; }
+    input { display: block; width: 100%; padding: 10px; margin-bottom: 12px; box-sizing: border-box; }
+    button { padding: 10px 20px; background: #222; color: white; border: none; cursor: pointer; }
+    #result { margin-top: 16px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h2>Interested? Leave your details.</h2>
+  <form id="leadForm">
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="text" name="first_name" placeholder="First name">
+    <input type="text" name="last_name" placeholder="Last name">
+    <button type="submit">Submit</button>
+  </form>
+  <div id="result"></div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const sourcePost = params.get("source_post") || "";
+
+    document.getElementById("leadForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const payload = {
+        email: form.email.value,
+        first_name: form.first_name.value,
+        last_name: form.last_name.value,
+        source_post: sourcePost,
+      };
+      const res = await fetch("/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      document.getElementById("result").textContent = res.ok
+        ? "Thanks - we got it."
+        : "Error: " + (data.detail || "something went wrong");
+    });
+  </script>
+</body>
+</html>

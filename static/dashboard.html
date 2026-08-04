@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stelle — Launch an ad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f4ecd8;
+    --cream-panel: #fffbf1;
+    --line: #d9c9a3;
+    --forest: #3b5d3d;
+    --forest-dark: #24391f;
+    --terracotta: #d97b4f;
+    --mustard: #e3ab3c;
+    --ink: #2b2318;
+    --ink-dim: #7a6f57;
+    --danger: #c1503f;
+    --good: #3f7a52;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 500px 300px at 90% -5%, rgba(227,171,60,0.25), transparent),
+      radial-gradient(ellipse 400px 260px at -5% 100%, rgba(59,93,61,0.14), transparent);
+    background-repeat: no-repeat;
+  }
+
+  .shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+  }
+
+  header.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .wordmark {
+    font-family: 'Caveat', cursive;
+    font-size: 46px;
+    font-weight: 700;
+    color: var(--forest-dark);
+    line-height: 1;
+    transform: rotate(-2deg);
+    display: inline-block;
+  }
+  .wordmark span {
+    color: var(--terracotta);
+    -webkit-text-stroke: 0.5px var(--forest-dark);
+  }
+  .wordmark .tag {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--cream-panel);
+    background: var(--terracotta);
+    padding: 3px 10px;
+    border-radius: 999px;
+    vertical-align: middle;
+    margin-left: 10px;
+    transform: rotate(4deg);
+    display: inline-block;
+    letter-spacing: 0.02em;
+  }
+
+  .session-pill {
+    font-size: 12px;
+    color: var(--forest-dark);
+    background: var(--cream-panel);
+    border: 2px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-family: 'Baloo 2', sans-serif;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    gap: 48px;
+  }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .constellation { flex-direction: row !important; overflow-x: auto; padding-bottom: 12px; }
+    .constellation .star-row { flex-direction: column; align-items: center; min-width: 90px; }
+    .constellation .connector { width: 100%; height: 3px; }
+  }
+
+  /* --- sticker-trail stepper (was: constellation) --- */
+  .constellation {
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 48px;
+    align-self: start;
+  }
+
+  .star-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+  }
+
+  .star {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--cream-panel);
+    border: 2.5px solid var(--line);
+    flex-shrink: 0;
+    transition: all 0.35s ease;
+  }
+  .star-row.done .star {
+    background: var(--mustard);
+    border-color: var(--forest-dark);
+    box-shadow: 2px 3px 0 var(--forest-dark);
+  }
+  .star-row.active .star {
+    background: var(--terracotta);
+    border-color: var(--forest-dark);
+    box-shadow: 2px 3px 0 var(--forest-dark);
+    animation: wiggle 1.6s ease-in-out infinite;
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-8deg); }
+  }
+
+  .star-label {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink-dim);
+    transition: color 0.3s ease;
+    line-height: 1.3;
+  }
+  .star-row.active .star-label { color: var(--forest-dark); font-weight: 700; }
+  .star-row.done .star-label { color: var(--forest); }
+
+  .connector {
+    width: 3px;
+    height: 28px;
+    margin-left: 8px;
+    background-image: linear-gradient(var(--line) 60%, transparent 40%);
+    background-size: 3px 10px;
+    background-repeat: repeat-y;
+    position: relative;
+  }
+  .connector.filled {
+    background-image: linear-gradient(var(--mustard) 60%, transparent 40%);
+    background-size: 3px 10px;
+  }
+
+  /* --- main panel --- */
+  .panel {
+    background: var(--cream-panel);
+    border: 2.5px solid var(--forest-dark);
+    border-radius: 22px;
+    padding: 40px 44px;
+    min-height: 420px;
+    box-shadow: 6px 7px 0 var(--line);
+    position: relative;
+  }
+
+  .eyebrow {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 12.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--cream-panel);
+    background: var(--forest);
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+    font-weight: 700;
+    transform: rotate(-1.5deg);
+  }
+
+  h1.step-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    margin: 0 0 12px;
+    line-height: 1.2;
+    color: var(--forest-dark);
+  }
+
+  p.step-sub {
+    color: var(--ink-dim);
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0 0 32px;
+    max-width: 560px;
+    font-weight: 600;
+  }
+
+  label {
+    display: block;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 13px;
+    color: var(--forest-dark);
+    margin: 18px 0 6px;
+    font-weight: 600;
+  }
+  label:first-of-type { margin-top: 0; }
+
+  input[type=text], input[type=number], input[type=url], select, textarea {
+    width: 100%;
+    background: var(--cream);
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: var(--ink);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    transition: border-color 0.2s ease;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--terracotta);
+  }
+  textarea { resize: vertical; min-height: 70px; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--terracotta);
+    color: #fff8ec;
+    border: 2.5px solid var(--forest-dark);
+    border-radius: 10px;
+    padding: 11px 22px;
+    font-size: 14.5px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 28px;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    font-family: 'Baloo 2', sans-serif;
+    box-shadow: 3px 4px 0 var(--forest-dark);
+  }
+  .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 5px 0 var(--forest-dark); }
+  .btn:active { transform: translate(2px, 3px); box-shadow: 0px 0px 0 var(--forest-dark); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn.ghost {
+    background: var(--cream-panel);
+    color: var(--forest-dark);
+    border: 2.5px solid var(--forest-dark);
+    box-shadow: 3px 4px 0 var(--line);
+  }
+  .btn.ghost:hover { box-shadow: 4px 5px 0 var(--line); }
+
+  .btn-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+
+  .status-msg {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    display: none;
+    border: 2px solid transparent;
+  }
+  .status-msg.show { display: block; }
+  .status-msg.error { background: #fbe6e2; color: var(--danger); border-color: #e8b3a8; }
+  .status-msg.ok { background: #e6f0e4; color: var(--good); border-color: #b7d6b3; }
+
+  .copy-block {
+    margin-top: 10px;
+    background: var(--cream);
+    border: 2.5px solid var(--forest-dark);
+    border-radius: 16px;
+    padding: 22px 26px;
+    max-width: 480px;
+    box-shadow: 4px 5px 0 var(--mustard);
+  }
+  .copy-label {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--forest);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .copy-headline {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--forest-dark);
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+  .copy-desc {
+    font-size: 14.5px;
+    color: var(--ink-dim);
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .preview-card {
+    margin-top: 20px;
+    border: 2.5px solid var(--forest-dark);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--cream);
+    max-width: 360px;
+    box-shadow: 4px 5px 0 var(--line);
+    transform: rotate(-1deg);
+  }
+  .preview-card img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 1.2 / 1;
+    object-fit: cover;
+    background: var(--line);
+  }
+
+  .cta-preview {
+    display: inline-block;
+    margin-top: 14px;
+    background: var(--forest);
+    color: var(--cream-panel);
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 12.5px;
+    letter-spacing: 0.02em;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 2px solid var(--forest-dark);
+  }
+
+  .fact-list { list-style: none; padding: 0; margin: 0 0 8px; }
+  .fact-list li {
+    display: flex; justify-content: space-between;
+    padding: 9px 0; border-bottom: 2px dashed var(--line);
+    font-size: 13.5px;
+    font-weight: 700;
+  }
+  .fact-list li span:first-child { color: var(--ink-dim); font-family: 'Baloo 2', sans-serif; }
+  .fact-list li span:last-child { color: var(--forest-dark); text-align: right; max-width: 60%; }
+
+  code.inline {
+    background: var(--cream);
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    padding: 1px 7px;
+    font-size: 12.5px;
+    color: var(--terracotta);
+    font-weight: 700;
+  }
+
+  a.link { color: var(--forest); text-decoration: underline; }
+
+  .final-glow {
+    text-align: center;
+    padding: 30px 0 40px;
+  }
+  .final-glow .big-star {
+    width: 64px; height: 64px; margin: 0 auto 18px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--mustard) 0%, transparent 72%);
+    animation: wiggle 2.2s ease-in-out infinite;
+    position: relative;
+  }
+  .final-glow .big-star::after {
+    content: '✦';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: var(--forest-dark);
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="top">
+    <div class="wordmark">stelle<span class="tag">ads</span></div>
+    <div class="session-pill" id="sessionPill">no session yet</div>
+  </header>
+
+  <div class="layout">
+    <nav class="constellation" id="constellation"></nav>
+    <main class="panel" id="panel"></main>
+  </div>
+
+</div>
+
+<script>
+const API = ""; // same origin as this page — serve via uvicorn, not file://
+
+const STEPS = [
+  { key: "start",      label: "Begin" },
+  { key: "facebook",    label: "Connect Meta" },
+  { key: "website",     label: "Analyze site" },
+  { key: "questionnaire", label: "Set the goal" },
+  { key: "content",     label: "Generate ad" },
+  { key: "budget",      label: "Set budget" },
+  { key: "launch",      label: "Launch" },
+];
+
+// Mirrors meta_ads_client.CALL_TO_ACTION_OPTIONS / OBJECTIVE_MAP[*]['default_cta'] -
+// keep these two in sync if the backend list changes.
+const CTA_LABELS = {
+  LEARN_MORE: "Learn More",
+  SIGN_UP: "Sign Up",
+  SHOP_NOW: "Shop Now",
+  GET_QUOTE: "Get Quote",
+  CONTACT_US: "Contact Us",
+  SUBSCRIBE: "Subscribe",
+  DOWNLOAD: "Download",
+  BOOK_TRAVEL: "Book Now",
+};
+const DEFAULT_CTA_BY_GOAL = {
+  leads: "SIGN_UP",
+  traffic: "LEARN_MORE",
+  sales: "SHOP_NOW",
+  awareness: "LEARN_MORE",
+  engagement: "LEARN_MORE",
+};
+
+let state = {
+  sessionId: null,
+  currentStepIdx: 0,
+  completed: new Set(),
+  data: {}, // accumulated info to show back to the user
+};
+
+function el(html) {
+  const d = document.createElement('div');
+  d.innerHTML = html.trim();
+  return d.firstChild;
+}
+
+function renderConstellation() {
+  const nav = document.getElementById('constellation');
+  nav.innerHTML = '';
+  STEPS.forEach((step, i) => {
+    const done = state.completed.has(i);
+    const active = i === state.currentStepIdx;
+    const row = el(`
+      <div class="star-row ${done ? 'done' : ''} ${active ? 'active' : ''}" data-idx="${i}">
+        <div class="star"></div>
+        <div class="star-label">${step.label}</div>
+      </div>
+    `);
+    row.addEventListener('click', () => {
+      if (done || active) { state.currentStepIdx = i; renderAll(); }
+    });
+    nav.appendChild(row);
+    if (i < STEPS.length - 1) {
+      const connector = el(`<div class="connector ${done ? 'filled' : ''}"></div>`);
+      nav.appendChild(connector);
+    }
+  });
+}
+
+function statusEl(msg, kind) {
+  return `<div class="status-msg show ${kind}">${msg}</div>`;
+}
+
+async function callApi(path, opts = {}) {
+  const res = await fetch(API + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.detail || `Request failed (${res.status})`);
+  return body;
+}
+
+function renderPanel() {
+  const step = STEPS[state.currentStepIdx];
+  const panel = document.getElementById('panel');
+  panel.innerHTML = '';
+  const render = RENDERERS[step.key];
+  render(panel);
+}
+
+function renderAll() {
+  renderConstellation();
+  renderPanel();
+  document.getElementById('sessionPill').textContent =
+    state.sessionId ? `session · ${state.sessionId}` : 'no session yet';
+}
+
+function advance() {
+  state.completed.add(state.currentStepIdx);
+  state.currentStepIdx = Math.min(state.currentStepIdx + 1, STEPS.length - 1);
+  renderAll();
+}
+
+// ---------- step renderers ----------
+
+const RENDERERS = {
+
+  start(panel) {
+    panel.appendChild(el(`
+      <div>
+        <div class="eyebrow">Step 1 of 7</div>
+        <h1 class="step-title">Light the first star.</h1>
+        <p class="step-sub">This walks one business through the whole path — connect a Meta ad
+        account, read the website, set a goal, generate the ad, set a budget, and launch —
+        the same six steps <code class="inline">onboarding_session.py</code> tracks underneath.</p>
+        <div class="btn-row">
+          <button class="btn" id="beginBtn">Begin</button>
+        </div>
+        <div id="msg"></div>
+      </div>
+    `));
+    panel.querySelector('#beginBtn').addEventListener('click', async () => {
+      const btn = panel.querySelector('#beginBtn');
+      btn.disabled = true;
+      try {
+        const res = await callApi('/onboarding/start', { method: 'POST' });
+        state.sessionId = res.session.id;
+        advance();
+      } catch (e) {
+        panel.querySelector('#msg').innerHTML = statusEl(e.message, 'error');
+        btn.disabled = false;
+      }
+    });
+  },
+
+  facebook(panel) {
+    panel.appendChild(el(`
+      <div>
+        <div class="eyebrow">Step 2 of 7</div>
+        <h1 class="step-title">Connect the Meta ad account.</h1>
+        <p class="step-sub">Opens Facebook's consent screen. After you approve access, it
+        brings you right back here with your ad accounts and Pages ready to pick from.</p>
+        <div id="fbArea">
+          <div class="btn-row">
+            <button class="btn ghost" id="connectBtn">Connect with Facebook</button>
+          </div>
+        </div>
+        <div id="msg"></div>
+      </div>
+    `));
+
+    panel.querySelector('#connectBtn').addEventListener('click', async () => {
+      try {
+        const res = await callApi(`/onboarding/${state.sessionId}/facebook/connect`);
+        // same-tab navigation on purpose: Facebook's consent screen
+        // redirects back to our own /dashboard?session_id=...&fb=connected
+        // afterward, so the page just picks up where it left off.
+        window.location.href = res.oauth_url;
+      } catch (e) {
+        panel.querySelector('#msg').innerHTML = statusEl(e.message, 'error');
+      }
+    });
+
+    function renderPicker(adAccounts, pages) {
+      const fbArea = panel.querySelector('#fbArea');
+      fbArea.innerHTML = `
+        <label>Ad account</label>
+        <select id="adAccountSelect">
+          ${adAccounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('')}
+        </select>
+        <label>Page</label>
+        <select id="pageSelect">
+          ${pages.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+        </select>
+        <div class="btn-row"><button class="btn" id="selectBtn">Use this account</button></div>
+      `;
+      fbArea.querySelector('#selectBtn').addEventListener('click', async () => {
+        const ad_account_id = fbArea.querySelector('#adAccountSelect').value;
+        const page_id = fbArea.querySelector('#pageSelect').value;
+        try {
+          await callApi(`/onboarding/${state.sessionId}/facebook/select`, {
+            method: 'POST', body: JSON.stringify({ ad_account_id, page_id }),
+          });
+          state.data.adAccountId = ad_account_id;
+          advance();
+        } catch (e) {
+          panel.querySelector('#msg').innerHTML = statusEl(e.message, 'error');
+        }
+      });
+    }
+
+    // If this session already has a connected account (e.g. we just
+    // landed back here from Facebook's redirect), show the picker right
+    // away instead of the connect button.
+    (async function tryLoadAccounts() {
+      try {
+        const res = await callApi(`/onboarding/${state.sessionId}/facebook/accounts`);
+        renderPicker(res.ad_accounts, res.pages);
+      } catch (e) {
+        // Not connected yet - leave the connect button showing, this is the normal first-visit state.
+      }
+    })();
+  },
+
+  website(panel) {
+    panel.appendChild(el(`
+      <div>
+        <div class="eyebrow">Step 3 of 7</div>
+        <h1 class="step-title">Read the business.</h1>
+        <p class="step-sub">Scrapes the site's title, meta description, and visible text,
+        then has Groq infer what the business actually does — you'll see the result before
+        it's used for anything.</p>
+        <label>Website URL</label>
+        <input type="url" id="websiteUrl" placeholder="https://example.com">
+        <div class="btn-row"><button class="btn" id="analyzeBtn">Analyze</button></div>
+        <div id="msg"></div>
+        <div id="result"></div>
+      </div>
+    `));
+
+    panel.querySelector('#analyzeBtn').addEventListener('click', async () => {
+      const btn = panel.querySelector('#analyzeBtn');
+      const url = panel.querySelector('#websiteUrl').value.trim();
+      if (!url) return;
+      btn.disabled = true;
+      panel.querySelector('#msg').innerHTML = statusEl('Reading the site…', 'ok');
+      try {
+        const res = await callApi(`/onboarding/${state.sessionId}/analyze-website`, {
+          method: 'POST', body: JSON.stringify({ website_url: url }),
+        });
+        state.data.analysis = res.analysis;
+        panel.querySelector('#msg').innerHTML = statusEl('Analyzed. Confirm below, then continue.', 'ok');
+        panel.querySelector('#result').innerHTML = `
+          <ul class="fact-list">
+            <li><span>What it does</span><span>${res.analysis.business_description}</span></li>
+            <li><span>Industry</span><span>${res.analysis.suggested_industry}</span></li>
+          </ul>
+          <div class="btn-row"><button class="btn" id="confirmBtn">Looks right — continue</button></div>
+        `;
+        panel.querySelector('#confirmBtn').addEventListener('click', advance);
+      } catch (e) {
+        panel.querySelector('#msg').innerHTML = statusEl(e.message, 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  },
+
+  questionnaire(panel) {
+    panel.appendChild(el(`
+      <div>
+        <div class="eyebrow">Step 4 of 7</div>
+        <h1 class="step-title">What's this campaign for?</h1>
+        <p class="step-sub">Sets the objective, audience, and any offer to highlight — feeds
+        both the ad copy and the Meta campaign settings.</p>
+        <label>Goal</label>
+        <select id="goal">
+          <option value="leads">Leads</option>
+          <option value="traffic">Traffic</option>
+          <option value="sales">Sales</option>
+          <option value="awareness">Awareness</option>
+          <option value="engagement">Engagement</option>
+        </select>
+        <div class="row2">
+          <div><label>Age min</label><input type="number" id="ageMin" value="18"></div>
+          <div><label>Age max</label><input type="number" id="ageMax" value="65"></div>
+        </div>
+        <label>Countries (comma-separated codes)</label>
+        <input type="text" id="countries" value="US">
+        <label>Offer (optional)</label>
+        <input type="text" id="offer" placeholder="20% off first visit">
+        <label>Call-to-action button</label>
+        <select id="cta">
+          <option value="">Auto (matches the goal above)</option>
+          <option value="LEARN_MORE">Learn More</option>
+          <option value="SIGN_UP">Sign Up</option>
+          <option value="SHOP_NOW">Shop Now</option>
+          <option value="GET_QUOTE">Get Quote</option>
+          <option value="CONTACT_US">Contact Us</option>
+          <option value="SUBSCRIBE">Subscribe</option>
+          <option value="DOWNLOAD">Download</option>
+          <option value="BOOK_TRAVEL">Book Now</option>
+        </select>
+        <div class="btn-row"><button class="btn" id="qBtn">Continue</button></div>
+        <div id="msg"></div>
+      </div>
+    `));
+
+    panel.querySelector('#qBtn').addEventListener('click', async () => {
+      const body = {
+        goal: panel.querySelector('#goal').value,
+        age_min: parseInt(panel.querySelector('#ageMin').value, 10),
+        age_max: parseInt(panel.querySelector('#ageMax').value, 10),
+        countries: panel.querySelector('#countries').value.split(',').map(c => c.trim()).filter(Boolean),
+        offer: panel.querySelector('#offer').value.trim(),
+        call_to_action: panel.querySelector('#cta').value || null,
+      };
+      try {
+        await callApi(`/onboarding/${state.sessionId}/questionnaire`, {
+          method: 'POST', body: JSON.stringify(body),
+        });
+        state.data.questionnaire = body;
+        advance();
+      } catch (e) {
+        panel.querySelector('#msg').innerHTML = statusEl(e.message, 'error');
+      }
+    });
+  },
+
+  content(panel) {
+    panel.appendChild(el(`
+      <div>
+        <div class="eyebrow">Step 5 of 7</div>
+        <h1 class="step-title">Generate the ad.</h1>
+        <p class="step-sub">Groq writes the headline and description — that's the part worth
+        getting right first. The image is generated too, but AI images (and AI-rendered text
+        inside them) aren't always reliable, so you can regenerate it or just upload your own
+        if it's not working out.</p>
+        <div class="btn-row"><button class="btn" id="genBtn">Generate</button></div>
+        <div id="msg"></div>
+        <div id="preview"></div>
+      </div>
+    `));
+
+    async function generate(regenerate, extra) {
+      const path = regenerate
+        ? `/onboarding/${state.sessionId}/regenerate-image`
+        : `/onboarding/${state.sessionId}/generate-content`;
+      panel.querySelector('#msg').innerHTML = statusEl(
+        regenerate ? 'Regenerating the image…' : 'Writing copy and generating the image…', 'ok'
+      );
+      try {
+        const res = await callApi(path, {
+          method: 'POST', body: JSON.stringify(regenerate ? { extra_instructions: extra || "" } : {}),
+        });
+        state.data.adContent = res.ad_content;
+        panel.querySelector('#msg').innerHTML = statusEl('Ready. Regenerate or upload your own if the image needs work.', 'ok');
+        renderPreview();
+      } catch (e) {
+        panel.querySelector('#msg').innerHTML = statusEl(e.message, 'error');
+      }
+    }
+
+    async function uploadImage(fileInput) {
+      const file = fileInput.files[0];
+      if (!file) return;
+      panel.querySelector('#msg').innerHTML = statusEl('Uploading your image…', 'ok');
+      try {
+        const form = new FormData();
+        form.append('file', file);
+        // Note: no Content-Type header here on purpose — the browser
+        // sets the multipart boundary itself; setting it manually breaks the upload.
+        const res = await fetch(`/onboarding/${state.sessionId}/upload-image`, {
+          method: 'POST', body: form,
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.detail || `Upload failed (${res.status})`);
+        state.data.adContent = body.ad_content;
+        panel.querySelector('#msg').innerHTML = statusEl('Your image is in.', 'ok');
+        renderPreview();
+      } catch (e) {
+        panel.querySelector('#msg').innerHTML = statusEl(e.message, 'error');
+      }
+    }
+
+    function renderPreview() {
+      const c = state.data.adContent;
+      const q = state.data.questionnaire || {};
+      const ctaCode = q.call_to_action || DEFAULT_CTA_BY_GOAL[q.goal] || "LEARN_MORE";
+      const ctaLabel = CTA_LABELS[ctaCode] || ctaCode;
+      const fallbackNote = c.image_source === 'site_logo_fallback'
+        ? `<div class="status-msg show error" style="margin-top:14px;">Image generation didn't come through — this is the site's own logo/image instead. Regenerate, or upload your own below.</div>`
+        : '';
+      const uploadedNote = c.image_source === 'user_uploaded'
+        ? `<div class="status-msg show ok" style="margin-top:14px;">Using your uploaded image.</div>`
+        : '';
+
+      panel.querySelector('#preview').innerHTML = `
+        <div class="copy-block">
+          <div class="copy-label">Ad copy</div>
+          <div class="copy-headline">${c.headline}</div>
+          <div class="copy-desc">${c.description}</div>
+        </div>
+
+        <div class="preview-card">
+          <img src="${c.image_url}" alt="Ad creative">
+        </div>
+        <div class="cta-preview">${ctaLabel} ›</div>
+        ${fallbackNote}
+        ${uploadedNote}
+
+        <label>Regenerate with direction (optional)</label>
+        <textarea id="extra" placeholder="more colorful, show the storefront, less text…"></textarea>
+        <div class="btn-row">
+          <button class="btn ghost" id="regenBtn">Regenerate image</button>
+          <button class="btn ghost" id="uploadBtn">Upload your own image</button>
+          <button class="btn" id="continueBtn">Use this — continue</button>
+        </div>
+        <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" style="display:none;">
+      `;
+      panel.querySelector('#regenBtn').addEventListener('click', () => {
+        generate(true, panel.querySelector('#extra').value.trim());
+      });
+      panel.querySelector('#uploadBtn').addEventListener('click', () => {
+        panel.querySelector('#fileInput').click();
+      });
+      panel.querySelector('#fileInput').addEventListener('change', (e) => uploadImage(e.target));
+      panel.querySelector('#continueBtn').addEventListener('click', advance);
+    }
+
+    panel.querySelector('#genBtn').addEventListener('click', () => generate(false));
+  },
+
+  budget(panel) {
+    panel.appendChild(el(`
+      <div>
+        <div class="eyebrow">Step 6 of 7</div>
+        <h1 class="step-title">Set the daily budget.</h1>
+        <p class="step-sub">Whole currency units — converted to the minor-unit integer Meta
+        expects when the ad set is created.</p>
+        <label>Daily budget</label>
+        <input type="number" id="dailyBudget" placeholder="15" step="0.01">
+        <div class="btn-row"><button class="btn" id="budgetBtn">Continue</button></div>
+        <div id="msg"></div>
+      </div>
+    `));
+
+    panel.querySelector('#budgetBtn').addEventListener('click', async () => {
+      const daily_budget = parseFloat(panel.querySelector('#dailyBudget').value);
+      if (!daily_budget || daily_budget <= 0) {
+        panel.querySelector('#msg').innerHTML = statusEl('Enter a budget above zero.', 'error');
+        return;
+      }
+      try {
+        await callApi(`/onboarding/${state.sessionId}/budget`, {
+          method: 'POST', body: JSON.stringify({ daily_budget }),
+        });
+        state.data.budget = daily_budget;
+        advance();
+      } catch (e) {
+        panel.querySelector('#msg').innerHTML = statusEl(e.message, 'error');
+      }
+    });
+  },
+
+  launch(panel) {
+    panel.appendChild(el(`
+      <div>
+        <div class="eyebrow">Step 7 of 7</div>
+        <h1 class="step-title">Launch.</h1>
+        <p class="step-sub">Creates the Campaign, Ad Set, Ad Creative, and Ad on Meta, then
+        activates the campaign — everything starts PAUSED until this point. Meta still has
+        to review it before it actually serves.</p>
+        <div class="btn-row"><button class="btn" id="launchBtn">Launch campaign</button></div>
+        <div id="msg"></div>
+        <div id="result"></div>
+      </div>
+    `));
+
+    panel.querySelector('#launchBtn').addEventListener('click', async () => {
+      const btn = panel.querySelector('#launchBtn');
+      btn.disabled = true;
+      panel.querySelector('#msg').innerHTML = statusEl('Sending it up…', 'ok');
+      try {
+        const res = await callApi(`/onboarding/${state.sessionId}/launch`, { method: 'POST' });
+        state.completed.add(state.currentStepIdx);
+        renderConstellation();
+        panel.querySelector('#msg').innerHTML = statusEl('Live in the review queue.', 'ok');
+        panel.querySelector('#result').innerHTML = `
+          <div class="final-glow">
+            <div class="big-star"></div>
+          </div>
+          <ul class="fact-list">
+            <li><span>Campaign</span><span>${res.meta_ids.campaign_id}</span></li>
+            <li><span>Ad set</span><span>${res.meta_ids.adset_id}</span></li>
+            <li><span>Creative</span><span>${res.meta_ids.creative_id}</span></li>
+            <li><span>Ad</span><span>${res.meta_ids.ad_id}</span></li>
+            <li><span>CTA button</span><span>${CTA_LABELS[res.call_to_action] || res.call_to_action}</span></li>
+          </ul>
+        `;
+      } catch (e) {
+        panel.querySelector('#msg').innerHTML = statusEl(e.message, 'error');
+        btn.disabled = false;
+      }
+    });
+  },
+};
+
+// If Facebook's OAuth redirect just landed us back here
+// (/dashboard?session_id=...&fb=connected), restore the session and
+// jump straight to the "connect Meta" step instead of starting over -
+// the facebook() renderer above then fetches the account list itself.
+(function restoreFromRedirect() {
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session_id');
+  if (sessionId) {
+    state.sessionId = sessionId;
+    state.completed.add(0); // "Begin" step is implicitly done
+    state.currentStepIdx = 1; // "Connect Meta" step
+    window.history.replaceState({}, '', '/dashboard'); // clean the URL so a refresh doesn't replay this
+  }
+})();
+
+renderAll();
+</script>
+</body>
+</html>

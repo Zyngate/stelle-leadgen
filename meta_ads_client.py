@@ -233,7 +233,7 @@ class MetaAdsClient:
             "optimization_goal": optimization_goal,
             "targeting": _to_json(targeting),
             "status": status,
-            "is_adset_budget_sharing_enabled": "False",
+            "is_adset_budget_sharing_enabled": "false",
         }
         with open("debug_payload.txt", "w") as f:
             f.write(f"ADSET PAYLOAD:\n{payload}\n")

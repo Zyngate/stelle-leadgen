@@ -5,3 +5,11 @@ pydantic[email]
 python-dotenv
 beautifulsoup4
 Pillow
+fastapi
+uvicorn
+httpx
+pydantic[email]
+python-dotenv
+beautifulsoup4
+Pillow
+python-multipart
